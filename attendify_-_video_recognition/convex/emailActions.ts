@@ -21,8 +21,8 @@ export const sendReportEmail = action({
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: 'attendifyreports@gmail.com',
-          pass: 'eovfyypejjetdqdn'
+          user: 'attendifysupp@gmail.com',
+          pass: 'zyipxefvurxymteo'
         }
       });
 
@@ -70,7 +70,7 @@ export const sendReportEmail = action({
       for (const recipient of args.recipients) {
         try {
           const mailOptions = {
-            from: '"Attendify Reports" <attendifyreports@gmail.com>',
+            from: '"Attendify Reports" <attendifysupp@gmail.com>',
             to: recipient,
             subject: args.subject,
             html: emailHtml,
