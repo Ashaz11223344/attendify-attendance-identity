@@ -30,7 +30,7 @@ const DownloadAppButton: React.FC = () => {
       document.body.removeChild(link);
     } else if (platform === 'android') {
       // Open Android APK link in new tab
-      window.open('https://median.co/share/mbxbxpl#apk', '_blank');
+      window.open('https://github.com/Ashaz11223344/attendify-attendance-identity/releases/download/v1.0/attendify.apk', '_blank');
     }
     setIsOpen(false);
   };
@@ -101,4 +101,5 @@ const DownloadAppButton: React.FC = () => {
 };
 
 export default DownloadAppButton;
+
 
