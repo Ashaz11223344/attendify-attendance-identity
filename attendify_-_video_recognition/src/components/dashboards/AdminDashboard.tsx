@@ -3,15 +3,16 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Doc } from '../../../convex/_generated/dataModel';
 import LoadingWrapper from '../LoadingWrapper';
+import UserManagement from '../admin/UserManagement';
 import SubjectManagement from '../admin/SubjectManagement';
 import StudentEnrollment from '../admin/StudentEnrollment';
 import EmailManagement from '../admin/EmailManagement';
 import ReportsManagement from '../admin/ReportsManagement';
-import UserManagement from '../admin/UserManagement';
 import DetailedReport from '../common/DetailedReport';
 import Leaderboard from '../common/Leaderboard';
 import NotificationShowcase from '../common/NotificationShowcase';
-import { BarChart3, Users, BookOpen, FileText, TrendingUp, Mail, GraduationCap, UserCheck, Calendar, Trophy, Bell } from 'lucide-react';
+import DownloadAppButton from '../common/DownloadAppButton';
+import { Users, BookOpen, UserPlus, Mail, BarChart3, Trophy, Bell, Shield } from 'lucide-react';
 
 interface AdminDashboardProps {
   profile: Doc<"userProfiles">;
@@ -20,21 +21,38 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, setActiveTab }) => {
-  const allProfiles = useQuery(api.userProfiles.getAllProfiles, {});
-  const allSubjects = useQuery(api.subjects.getAllSubjects);
+  const allUsers = useQuery(api.userProfiles.getAllUsers, {});
+  const allSubjects = useQuery(api.subjects.getAllSubjects, {});
   const recentSessions = useQuery(api.attendance.getRecentSessions);
 
   const tabs = [
-    { id: 'overview', name: 'Overview', icon: BarChart3 },
-    { id: 'profiles', name: 'User Management', icon: Users },
+    { id: 'overview', name: 'Overview', icon: Shield },
+    { id: 'users', name: 'User Management', icon: Users },
     { id: 'subjects', name: 'Subject Management', icon: BookOpen },
-    { id: 'enrollment', name: 'Student Enrollment', icon: FileText },
-    { id: 'detailed-report', name: 'System Reports', icon: TrendingUp },
-    { id: 'leaderboard', name: 'Global Leaderboard', icon: Trophy },
-    { id: 'reports', name: 'Analytics', icon: BarChart3 },
+    { id: 'enrollment', name: 'Student Enrollment', icon: UserPlus },
     { id: 'email', name: 'Email Management', icon: Mail },
-    { id: 'notifications', name: 'Notification Demo', icon: Bell },
+    { id: 'reports', name: 'Reports', icon: BarChart3 },
+    { id: 'detailed-report', name: 'Detailed Reports', icon: BarChart3 },
+    { id: 'leaderboard', name: 'Leaderboard', icon: Trophy },
+    { id: 'notifications', name: 'Notifications', icon: Bell },
   ];
+
+  const getStats = () => {
+    const students = allUsers?.filter(user => user.role === 'student') || [];
+    const teachers = allUsers?.filter(user => user.role === 'teacher') || [];
+    const admins = allUsers?.filter(user => user.role === 'admin') || [];
+    
+    return {
+      totalUsers: allUsers?.length || 0,
+      students: students.length,
+      teachers: teachers.length,
+      admins: admins.length,
+      subjects: allSubjects?.length || 0,
+      recentSessions: recentSessions?.length || 0,
+    };
+  };
+
+  const stats = getStats();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -47,7 +65,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {allProfiles?.length || 0}
+                    {stats.totalUsers}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
@@ -59,27 +77,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Active Subjects</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Students</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {allSubjects?.filter(s => s.isActive).length || 0}
+                    {stats.students}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Students</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {allProfiles?.filter(p => p.role === 'student' && p.status === 'approved').length || 0}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </div>
@@ -89,11 +93,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Teachers</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {allProfiles?.filter(p => p.role === 'teacher' && p.status === 'approved').length || 0}
+                    {stats.teachers}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Subjects</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.subjects}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                  <UserCheck className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                  <BookOpen className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
             </div>
@@ -101,51 +119,49 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
             {/* Recent Activity */}
             <div className="md:col-span-2 lg:col-span-4 bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Recent Attendance Sessions
+                System Overview
               </h3>
-              {recentSessions && recentSessions.length > 0 ? (
-                <div className="space-y-3">
-                  {recentSessions.slice(0, 5).map((session: any) => (
-                    <div
-                      key={session._id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {session.sessionName}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {session.subject?.name} • {new Date(session.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        session.status === 'active'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                      }`}>
-                        {session.status}
-                      </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-3">User Distribution</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Students</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.students}</span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Teachers</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.teachers}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Admins</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.admins}</span>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    No Recent Sessions
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Attendance sessions will appear here once teachers start taking attendance.
-                  </p>
                 </div>
-              )}
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-3">System Activity</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Total Subjects</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.subjects}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Recent Sessions</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.recentSessions}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">System Status</span>
+                      <span className="text-sm font-medium text-green-600 dark:text-green-400">Active</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
 
-      case 'profiles':
+      case 'users':
         return <UserManagement profile={profile} />;
 
       case 'subjects':
@@ -154,17 +170,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
       case 'enrollment':
         return <StudentEnrollment />;
 
+      case 'email':
+        return <EmailManagement />;
+
+      case 'reports':
+        return <ReportsManagement profile={profile} />;
+
       case 'detailed-report':
         return <DetailedReport profile={profile} userRole="admin" />;
 
       case 'leaderboard':
         return <Leaderboard profile={profile} userRole="admin" />;
-
-      case 'reports':
-        return <ReportsManagement profile={profile} />;
-
-      case 'email':
-        return <EmailManagement />;
 
       case 'notifications':
         return <NotificationShowcase />;
@@ -175,14 +191,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
   };
 
   return (
-    <LoadingWrapper isLoading={allProfiles === undefined || allSubjects === undefined}>
+    <LoadingWrapper isLoading={allUsers === undefined || allSubjects === undefined}>
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-500 to-pink-600 rounded-xl p-6 text-white">
-          <h2 className="text-2xl font-bold mb-2">Admin Dashboard</h2>
-          <p className="text-red-100">
-            Manage users, subjects, enrollments, and system settings
-          </p>
+        <div className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Admin Dashboard</h2>
+              <p className="text-purple-100">
+                Manage users, subjects, and system-wide settings
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <DownloadAppButton />
+            </div>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
@@ -194,7 +217,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ profile, activeTab, set
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab.id
-                    ? 'border-red-500 text-red-600 dark:text-red-400'
+                    ? 'border-purple-500 text-purple-600 dark:text-purple-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
