@@ -23,7 +23,7 @@ const DownloadAppButton: React.FC = () => {
     if (platform === 'windows') {
       // Create download link for Windows installer
       const link = document.createElement('a');
-      link.href = `https://convex.cloud/api/storage/kg29knenq27qtr8emh1brscsb17nzf2r`;
+      link.href = `https://github.com/Ashaz11223344/attendify-attendance-identity/releases/download/v1.0/AttendifySetup.exe`;
       link.download = 'Attendify-Setup.exe';
       document.body.appendChild(link);
       link.click();
@@ -101,3 +101,4 @@ const DownloadAppButton: React.FC = () => {
 };
 
 export default DownloadAppButton;
+
