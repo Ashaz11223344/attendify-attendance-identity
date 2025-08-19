@@ -9,6 +9,7 @@ import StudentManagement from '../teacher/StudentManagement';
 import DetailedReport from '../common/DetailedReport';
 import Leaderboard from '../common/Leaderboard';
 import NotificationShowcase from '../common/NotificationShowcase';
+import DownloadAppButton from '../common/DownloadAppButton';
 import { BookOpen, Users, BarChart3, Calendar, Trophy, Bell } from 'lucide-react';
 
 interface TeacherDashboardProps {
@@ -155,10 +156,17 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ profile, activeTab,
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-500 to-blue-600 rounded-xl p-6 text-white">
-          <h2 className="text-2xl font-bold mb-2">Teacher Dashboard</h2>
-          <p className="text-green-100">
-            Manage your subjects, take attendance, and track student progress
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Teacher Dashboard</h2>
+              <p className="text-green-100">
+                Manage your subjects, take attendance, and track student progress
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <DownloadAppButton />
+            </div>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
